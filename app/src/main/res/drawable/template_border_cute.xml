@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Outer Rounded Peach Border -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp" />
+            <stroke android:width="6dp" android:color="#FCA5A5" />
+            <solid android:color="#FFFBEB" /> <!-- Warm pastel cream background -->
+        </shape>
+    </item>
+    <!-- Inner Dotted Red Line -->
+    <item android:top="14dp" android:bottom="14dp" android:left="14dp" android:right="14dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="16dp" />
+            <stroke 
+                android:width="2dp" 
+                android:color="#F87171" 
+                android:dashWidth="8dp" 
+                android:dashGap="6dp" />
+            <solid android:color="#00000000" />
+        </shape>
+    </item>
+</layer-list>
