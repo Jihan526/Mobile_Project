@@ -242,10 +242,12 @@ class HomeFragment : Fragment() {
                 e.printStackTrace()
                 lastException = e
                 
-                // Do not retry for non-retryable errors (e.g. invalid API key, prompt blocked, local settings)
+                // Do not retry for non-retryable errors (e.g. invalid API key, prompt blocked, local settings, model not found 404)
                 val isNonRetryable = e is com.google.ai.client.generativeai.type.InvalidAPIKeyException ||
                                      e is com.google.ai.client.generativeai.type.PromptBlockedException ||
-                                     (e.message?.contains("API key") == true)
+                                     (e.message?.contains("API key") == true) ||
+                                     (e.message?.contains("404") == true) ||
+                                     (e.message?.contains("not found") == true)
                 
                 if (isNonRetryable || attempt == 3) {
                     throw e
@@ -273,25 +275,15 @@ class HomeFragment : Fragment() {
             var resultText: String? = null
             var lastException: Exception? = null
 
-            // 1. Try with gemini-1.5-flash (more stable / high capacity)
+            // 1. Try with gemini-2.5-flash directly (gemini-1.5-flash returns 404 for this API key)
             try {
                 if (BuildConfig.GEMINI_API_KEY.isBlank() || BuildConfig.GEMINI_API_KEY.startsWith("YOUR_")) {
                     throw IllegalStateException("API key is not configured")
                 }
-                resultText = tryGenerateWithModel("gemini-1.5-flash", reason)
+                resultText = tryGenerateWithModel("gemini-2.5-flash", reason)
             } catch (e: Exception) {
                 e.printStackTrace()
                 lastException = e
-            }
-
-            // 2. If it fails, try with gemini-2.5-flash as a fallback
-            if (resultText.isNullOrEmpty()) {
-                try {
-                    resultText = tryGenerateWithModel("gemini-2.5-flash", reason)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    lastException = e
-                }
             }
 
             try {

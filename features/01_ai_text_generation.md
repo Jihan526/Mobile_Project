@@ -34,9 +34,10 @@ sequenceDiagram
 
 ## 3. 핵심 소스코드 구현 (`HomeFragment.kt`)
 
-### 3.1 `GenerativeModel` 이중 모델(Primary & Fallback) 및 API 버전 매핑
-무료 티어 환경에서 특정 모델의 트래픽 폭주(503 Service Unavailable) 등으로 인한 생성 실패를 방지하기 위해, 상대적으로 안정적이고 처리 용량이 큰 **`gemini-1.5-flash`** 모델을 기본(Primary)으로 시도하고, 실패 시 최신 **`gemini-2.5-flash`** 모델을 대체(Fallback)로 재시도하는 이중화 호출 구조를 적용했습니다. 명시적으로 `v1` 엔드포인트를 호출하도록 구성해 버전 충돌을 완화합니다.
+### 3.1 `GenerativeModel` 지정 및 API 버전 매핑
+일부 API Key(예: `AQ.` 접두사 형태의 최신 보안 키)에서는 레거시 모델(`gemini-1.5-flash`) 호출 시 `404 Not Found`가 반환되는 현상이 있습니다. 이에 대응하여 안정적이고 정상 응답 속도가 빠른 **`gemini-2.5-flash`** 모델을 기본(Primary) 모델로 지정하고 명시적으로 `v1` API 버전을 타도록 설정하여 호출 지연과 오류 가능성을 차단했습니다.
 
+```kotlin
 private suspend fun tryGenerateWithModel(modelName: String, reason: String): String? {
     val generativeModel = GenerativeModel(
         modelName = modelName,
@@ -67,9 +68,12 @@ private suspend fun tryGenerateWithModel(modelName: String, reason: String): Str
             e.printStackTrace()
             lastException = e
             
+            // Do not retry for non-retryable errors (e.g. invalid API key, prompt blocked, local settings, model not found 404)
             val isNonRetryable = e is com.google.ai.client.generativeai.type.InvalidAPIKeyException ||
                                  e is com.google.ai.client.generativeai.type.PromptBlockedException ||
-                                 (e.message?.contains("API key") == true)
+                                 (e.message?.contains("API key") == true) ||
+                                 (e.message?.contains("404") == true) ||
+                                 (e.message?.contains("not found") == true)
             
             if (isNonRetryable || attempt == 3) {
                 throw e
@@ -104,9 +108,9 @@ val prompt = """
 ## 4. 예외 처리 및 Fallback 메커니즘
 네트워크 미연결, API Key 한도 초과, 인증 에러, 서버 과부하 등 비정상 상황이 발생할 경우 사용자의 경험을 해치지 않도록 방어적인 Fallback 코드를 구현하였습니다.
 
-1.  **이중 AI 모델 재시도**: `gemini-1.5-flash` 호출 중 에러가 발생하면 자동으로 `gemini-2.5-flash` 모델을 통해 재생성을 시도합니다.
+1.  **AI 모델 다이렉트 호출 및 빠른 실패**: 레거시 1.5 모델의 404 오류로 인한 무의미한 3회 재시도를 피하고 `gemini-2.5-flash`를 즉시 직접 호출하여 쿼터 낭비 및 대기 시간을 없앴습니다. 또한, 지원되지 않는 모델 이름이나 에러 코드 404 검출 시 재시도하지 않고 바로 실패 처리하도록 개선했습니다.
 2.  **친화적인 서버 오류 메시지**: 서버 과부하로 인한 임시 503(UNAVAILABLE) 에러 발생 시, 사용자에게 무서운 기술 스택 트레이스 다이얼로그 대신 "현재 AI 서버 트래픽이 많아 기본 문구로 대체되었습니다. 잠시 후 다시 시도해 주세요."라는 친절한 토스트 메시지를 표시합니다.
-3.  **Mock 텍스트 롤백**: 두 모델 모두 정상 응답을 주지 못해 완전 실패할 경우, `getMockAwardText(reason)` 함수를 호출하여 사용자가 입력한 사유가 삽입된 정형화된 상장 본문을 로컬에서 안전하게 구성해 즉시 제공합니다.
+3.  **Mock 텍스트 롤백**: 정상 응답을 받지 못해 완전 실패할 경우, `getMockAwardText(reason)` 함수를 호출하여 사용자가 입력한 사유가 삽입된 정형화된 상장 본문을 로컬에서 안전하게 구성해 즉시 제공합니다.
 4.  **디버그 얼럿**: 개발 및 테스트 과정의 신속한 오류 식별을 위해 일반 개발자 에러나 예측 못한 에러에 대해서만 catch 블록 내부에서 예외 메시지와 스택 트레이스를 `AlertDialog`로 상세 표출하도록 구성했습니다.
 
 ```kotlin
