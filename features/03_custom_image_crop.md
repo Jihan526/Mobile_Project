@@ -84,4 +84,18 @@ private fun performCrop(sourceUri: Uri) {
 *   `aspectX` & `aspectY`: 크롭 박스의 종횡비를 1:1로 제한하는 설정.
 *   `outputX` & `outputY`: 결과 해상도를 500x500 픽셀로 제한하여 앱 내 메모리 부족(OOM) 방지 및 UI 일관성 유지.
 *   `ClipData` 및 `grantUriPermission`: 보안이 적용된 파일 시스템(`FileProvider`)상에서 시스템 편집기 앱이 에러 없이 파일 쓰기(Write) 작업을 수행할 수 있도록 명시적으로 권한을 허가하는 안드로이드 보안 표준을 준수.
-*   `applyImageToCertificate(uri)`: 크롭 완료 성공 시, 로드 라이브러리인 `Coil`을 사용해 `ivCustomImage` 뷰를 표시하고 이미지를 렌더링.
+*   `applyImageToCertificate(uri)`: 크롭 완료 성공 시, 로드 라이브러리인 `Coil`을 사용해 `ivCustomImage` 뷰를 표시하고 이미지를 렌더링. 또한 "사진 제거" 버튼(`btn_remove_sticker`)을 사용자 화면에 노출합니다.
+
+---
+
+## 4. UI/UX 개선: 스티커 추가 섹션 분리 및 제거 기능
+
+기존 버전에서는 사진 가져오기 기능이 배경 템플릿 영역에 위치하고 있어, 사용자가 '템플릿 테두리를 추가하는 것'으로 쉽게 착각하는 UX 문제가 있었습니다. 이를 해소하기 위해 아래와 같이 UI를 리팩토링하였습니다.
+
+1. **"3. 사진 스티커 추가" 전용 카드 신설**:
+   - 템플릿 목록과 완전히 무관하게, 상장 내부에 스티커처럼 붙일 개인 사진을 불러오고 꾸밀 수 있도록 카드를 별도 그룹으로 분리하였습니다.
+   - 버튼명 및 ID를 `btn_camera_sticker`와 `btn_gallery_sticker`로 개명하여 직관성을 높였습니다.
+2. **"사진 제거" 기능 도입**:
+   - 사진을 등록하면 우측에 붉은색 글씨의 **"사진 제거"**(`btn_remove_sticker`) 버튼이 동적으로 나타납니다.
+   - 제거 버튼 클릭 시 상장 미리보기 내부의 이미지뷰(`iv_custom_image`)가 `GONE` 처리되고, 내부 이미지 리소스 및 크롭 캐시 데이터(`cropResultUri`)가 해제 및 리셋됩니다.
+

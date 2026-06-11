@@ -64,11 +64,12 @@ data class TemplateItem(
 `TemplateAdapter`의 생성자 매개변수로 클릭 리스너 람다 함수 `(TemplateItem) -> Unit`을 제공하여 어댑터 내부의 클릭 이벤트가 프래그먼트 내부의 상장 배경 `ImageView`로 직접 전파되도록 설계했습니다.
 
 ```kotlin
-private fun setupTemplatesRecyclerView() {
+    private fun setupTemplatesRecyclerView() {
     val templates = listOf(
         TemplateItem(1, R.drawable.template_border_classic, "Classic"),
         TemplateItem(2, R.drawable.template_border_modern, "Modern"),
-        TemplateItem(3, R.drawable.template_border_cute, "Cute")
+        TemplateItem(3, R.drawable.template_border_cute, "Cute"),
+        TemplateItem(4, R.drawable.template_border_traditional, "Traditional")
     )
 
     // 최초 실행 시 기본 클래식 배경 적용
@@ -83,3 +84,20 @@ private fun setupTemplatesRecyclerView() {
     binding.rvTemplates.adapter = adapter
 }
 ```
+
+---
+
+## 4. 고품격 전통 상장 서체(Fonts) 시스템 적용
+
+상장의 심미성과 전문성을 크게 향상시키기 위해 기본 산세리프 글꼴에서 벗어나 정식 붓글씨 및 명조 계열의 한국어 웹 폰트를 리소스에 탑재하여 상장에 일괄 매핑하였습니다.
+
+### 4.1 서체 매핑 구조
+- **송명체 (`@font/font_song_myung`)**: 전통 서예의 힘차고 뾰족한 붓끝 질감을 재현한 서체로, 상장의 핵심 제목인 **"상 장"** (`tv_cert_title`) 텍스트에 적용하여 엄숙한 분위기를 선사합니다.
+- **고운바탕체 (`@font/font_gowun_batang`)**: 단정하고 정갈하게 정돈된 세리프/명조 스타일 서체로, 상장 본문 (`tv_cert_content`), 이름 (`tv_cert_recipient`), 수여 날짜 (`tv_cert_date`), 수여인 (`tv_cert_issuer`)에 일관되게 입혀 가독성과 격식을 충족합니다.
+
+### 4.2 테두리 디자인의 고도화 (Vector Drawables)
+기존의 밋밋한 단선 shape 테두리에서 한 차원 진보하여 해상도 변화에도 번지지 않는 고화질 Vector Drawable (`<vector>`) 프레임을 적용했습니다.
+1. **Classic (`template_border_classic.xml`)**: 화려한 금박 모서리 문양과 조화로운 2중 테두리선을 그리는 전통 서양식 금박 레이아웃.
+2. **Modern (`template_border_modern.xml`)**: 실제 상견례나 현대식 임명장 양식을 모티브 삼아 신뢰감을 주는 딥 네이비 면과 얇은 골드 크로스 라인이 어우러진 현대적인 비즈니스 템플릿.
+3. **Traditional (`template_border_traditional.xml`)**: 한글 고유 문서를 흉내 낸 한지 느낌의 미색 배경지 위에 전통 기하학 코너 무양과 은은한 학 워터마크가 투영된 고급 한식 프레임.
+

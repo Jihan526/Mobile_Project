@@ -1,17 +1,50 @@
-<?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Outer Deep Blue Border -->
-    <item>
-        <shape android:shape="rectangle">
-            <stroke android:width="8dp" android:color="#1E3A8A" />
-            <solid android:color="#F8FAFC" /> <!-- Clean cool grey background -->
-        </shape>
-    </item>
-    <!-- Inner Grey Accent Line -->
-    <item android:top="16dp" android:bottom="16dp" android:left="16dp" android:right="16dp">
-        <shape android:shape="rectangle">
-            <stroke android:width="1.5dp" android:color="#94A3B8" />
-            <solid android:color="#00000000" />
-        </shape>
-    </item>
-</layer-list>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="1000dp"
+    android:height="1414dp"
+    android:viewportWidth="1000"
+    android:viewportHeight="1414">
+
+    <!-- Clean cool grey background -->
+    <path
+        android:fillColor="#F8FAFC"
+        android:pathData="M0,0 h1000 v1414 h-1000 z" />
+
+    <!-- Outer thick deep navy blue border -->
+    <path
+        android:strokeColor="#1E3A8A"
+        android:strokeWidth="16"
+        android:pathData="M30,30 h940 v1354 h-940 z" />
+
+    <!-- Inner gold border with crossing line ends at corners (Modern geometric style) -->
+    <path
+        android:strokeColor="#D4AF37"
+        android:strokeWidth="3.5"
+        android:pathData="M 60,80 L 940,80" />
+    <path
+        android:strokeColor="#D4AF37"
+        android:strokeWidth="3.5"
+        android:pathData="M 60,1334 L 940,1334" />
+    <path
+        android:strokeColor="#D4AF37"
+        android:strokeWidth="3.5"
+        android:pathData="M 80,60 L 80,1354" />
+    <path
+        android:strokeColor="#D4AF37"
+        android:strokeWidth="3.5"
+        android:pathData="M 920,60 L 920,1354" />
+
+    <!-- Sleek modern accent corner blocks in navy -->
+    <path
+        android:fillColor="#1E3A8A"
+        android:pathData="M 38,38 h 50 v 8 h -42 v 42 h -8 Z" />
+    <path
+        android:fillColor="#1E3A8A"
+        android:pathData="M 962,38 h -50 v 8 h 42 v 42 h 8 Z" />
+    <path
+        android:fillColor="#1E3A8A"
+        android:pathData="M 38,1376 h 50 v -8 h -42 v -42 h -8 Z" />
+    <path
+        android:fillColor="#1E3A8A"
+        android:pathData="M 962,1376 h -50 v -8 h 42 v -42 h 8 Z" />
+
+</vector>

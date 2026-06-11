@@ -134,6 +134,26 @@
 
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <!-- Award Date Input -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        app:boxStrokeColor="#4F46E5"
+                        app:hintEnabled="false">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_award_date"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@android:color/transparent"
+                            android:hint="수여 날짜 (예: 2026년 6월 11일, 비워두면 오늘 날짜)"
+                            android:inputType="text"
+                            android:textColor="#1F2937"
+                            android:textSize="14sp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_generate_text"
                         android:layout_width="match_parent"
@@ -149,7 +169,7 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- FR-02 & FR-03: Template Selection & Custom Decoration Section -->
+            <!-- FR-02: Template Selection Section -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -168,7 +188,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="2. 배경 꾸미기"
+                        android:text="2. 배경 템플릿 선택"
                         android:textColor="#374151"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -177,7 +197,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="제공되는 템플릿을 고르거나 새로운 사진을 추가하세요."
+                        android:text="상장의 분위기에 어울리는 테두리 템플릿을 선택해 주세요."
                         android:textColor="#6B7280"
                         android:textSize="12sp" />
 
@@ -191,7 +211,42 @@
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                         tools:listitem="@layout/item_template" />
 
-                    <!-- Custom Photo Options (FR-03) -->
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- FR-03: Photo Sticker Section (Separated from Templates) -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3. 사진 스티커 추가"
+                        android:textColor="#374151"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="상장 내부에 배치할 사진을 촬영하거나 갤러리에서 불러옵니다."
+                        android:textColor="#6B7280"
+                        android:textSize="12sp" />
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -199,30 +254,114 @@
                         android:orientation="horizontal">
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_camera_template"
+                            android:id="@+id/btn_camera_sticker"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:layout_marginEnd="6dp"
+                            android:layout_marginEnd="4dp"
                             android:text="사진 촬영"
                             android:textColor="#4F46E5"
                             app:cornerRadius="8dp"
                             app:strokeColor="#4F46E5" />
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_gallery_template"
+                            android:id="@+id/btn_gallery_sticker"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:layout_marginStart="6dp"
+                            android:layout_marginHorizontal="4dp"
                             android:text="갤러리 로드"
                             android:textColor="#4F46E5"
                             app:cornerRadius="8dp"
                             app:strokeColor="#4F46E5" />
 
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_remove_sticker"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:text="사진 제거"
+                            android:textColor="#EF4444"
+                            app:cornerRadius="8dp"
+                            app:strokeColor="#EF4444"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
                     </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- FR-08: Stamp Configuration -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="4. 직인 도장 설정"
+                        android:textColor="#374151"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="상장에 추가할 직인 도장을 표시하고, 도장 문구를 직접 입력하여 꾸밀 수 있습니다."
+                        android:textColor="#6B7280"
+                        android:textSize="12sp" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switch_issuer_stamp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="수여인 직인 도장 표시"
+                        android:textColor="#374151"
+                        android:textSize="14sp"
+                        android:checked="true"
+                        app:useMaterialThemeColors="true" />
+
+                    <!-- Custom Stamp Text Input -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        app:boxStrokeColor="#4F46E5"
+                        app:hintEnabled="false"
+                        app:counterEnabled="true"
+                        app:counterMaxLength="4">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_stamp_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@android:color/transparent"
+                            android:hint="도장 문구 입력 (최대 4자, 비워두면 수여인 이름)"
+                            android:inputType="text"
+                            android:maxLength="4"
+                            android:textColor="#1F2937"
+                            android:textSize="14sp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
 
@@ -234,7 +373,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginBottom="8dp"
-                android:text="3. 상장 미리보기"
+                android:text="5. 상장 미리보기"
                 android:textColor="#374151"
                 android:textSize="15sp"
                 android:textStyle="bold" />
@@ -280,6 +419,7 @@
                         android:textSize="32sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.4"
+                        android:fontFamily="@font/font_song_myung"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -295,6 +435,7 @@
                         android:textColor="#1F2937"
                         android:textSize="18sp"
                         android:textStyle="bold"
+                        android:fontFamily="@font/font_gowun_batang"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tv_cert_title" />
 
@@ -325,6 +466,7 @@
                         android:text="위 사람은 일상 속에서 타의 모범이 되는 훌륭한 모습을 보여주었기에 이 상장을 수여하여 칭찬하고 격려합니다."
                         android:textColor="#374151"
                         android:textSize="14sp"
+                        android:fontFamily="@font/font_gowun_batang"
                         app:layout_constraintBottom_toTopOf="@id/tv_cert_date"
                         app:layout_constraintTop_toBottomOf="@id/iv_custom_image" />
 
@@ -337,6 +479,7 @@
                         android:text="2026년 05월 26일"
                         android:textColor="#4B5563"
                         android:textSize="13sp"
+                        android:fontFamily="@font/font_gowun_batang"
                         app:layout_constraintBottom_toTopOf="@id/tv_cert_issuer"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent" />
@@ -351,9 +494,31 @@
                         android:textColor="#1F2937"
                         android:textSize="16sp"
                         android:textStyle="bold"
+                        android:fontFamily="@font/font_gowun_batang"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent" />
+
+                    <!-- Red Square Stamp TextView overlapping issuer name slightly -->
+                    <TextView
+                        android:id="@+id/tv_stamp_text"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="-8dp"
+                        android:background="@drawable/bg_stamp_red"
+                        android:gravity="center"
+                        android:rotation="-6"
+                        android:textColor="#D32F2F"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:lineSpacingMultiplier="0.85"
+                        android:fontFamily="@font/font_song_myung"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toBottomOf="@id/tv_cert_issuer"
+                        app:layout_constraintStart_toEndOf="@id/tv_cert_issuer"
+                        app:layout_constraintTop_toTopOf="@id/tv_cert_issuer"
+                        tools:text="홍길\n동인"
+                        tools:visibility="visible" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -361,6 +526,17 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- Bottom Operation Buttons (FR-04, FR-05) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_save_storage"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginBottom="12dp"
+                android:text="보관함 저장"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:backgroundTint="#4F46E5"
+                app:cornerRadius="8dp" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

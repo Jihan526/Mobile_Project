@@ -140,6 +140,11 @@ class HomeFragment : Fragment() {
         val currentDate = SimpleDateFormat("yyyy년 MM월 dd일", Locale.getDefault()).format(Date())
         binding.tvCertDate.text = currentDate
 
+        // Set default issuer name and stamp on preview
+        val defaultIssuer = SecurityHelper.getNickname(requireContext())
+        binding.tvCertIssuer.text = "수여인 : $defaultIssuer"
+        updateStampText()
+
         // Real-time preview binding for Names
         binding.etRecipientName.addTextChangedListener(object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -152,7 +157,17 @@ class HomeFragment : Fragment() {
         binding.etIssuerName.addTextChangedListener(object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.tvCertIssuer.text = "수여인 : ${s?.toString() ?: ""}"
+                val text = s?.toString() ?: ""
+                binding.tvCertIssuer.text = "수여인 : $text"
+                updateStampText()
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+
+        binding.etStampText.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                updateStampText()
             }
             override fun afterTextChanged(s: android.text.Editable?) {}
         })
@@ -171,13 +186,25 @@ class HomeFragment : Fragment() {
             }
         }
 
-        // FR-03: Camera & Gallery Action Events
-        binding.btnCameraTemplate.setOnClickListener {
+        // FR-03: Camera & Gallery Action Events (Separated Sticker Buttons)
+        binding.btnCameraSticker.setOnClickListener {
             checkCameraPermissionAndOpen()
         }
 
-        binding.btnGalleryTemplate.setOnClickListener {
+        binding.btnGallerySticker.setOnClickListener {
             openGallery()
+        }
+
+        binding.btnRemoveSticker.setOnClickListener {
+            binding.ivCustomImage.visibility = View.GONE
+            binding.btnRemoveSticker.visibility = View.GONE
+            binding.ivCustomImage.setImageDrawable(null)
+            cropResultUri = null
+        }
+
+        // FR-08: Stamp Switch Control
+        binding.switchIssuerStamp.setOnCheckedChangeListener { _, _ ->
+            updateStampText()
         }
 
         // FR-04: Save Certificate to Device Gallery
@@ -189,6 +216,40 @@ class HomeFragment : Fragment() {
         binding.btnShareSns.setOnClickListener {
             saveCertificateWorkflow(shouldShare = true)
         }
+
+        binding.etAwardDate.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val text = s?.toString()?.trim() ?: ""
+                if (text.isEmpty()) {
+                    val today = SimpleDateFormat("yyyy년 MM월 dd일", Locale.getDefault()).format(Date())
+                    binding.tvCertDate.text = today
+                } else {
+                    binding.tvCertDate.text = text
+                }
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+
+        binding.btnSaveStorage.setOnClickListener {
+            val recipient = binding.etRecipientName.text.toString().trim()
+            val reason = binding.etAwardReason.text.toString().trim()
+            val issuer = binding.etIssuerName.text.toString().trim()
+
+            if (recipient.isEmpty() || reason.isEmpty() || issuer.isEmpty()) {
+                Toast.makeText(requireContext(), "받는 사람 이름, 상장 수여 사유, 주는 사람 이름을 모두 작성해 주세요!", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
+            AlertDialog.Builder(requireContext())
+                .setTitle("보관함 저장")
+                .setMessage("이 상장을 보관함에 저장하시겠습니까?")
+                .setPositiveButton("저장") { _, _ ->
+                    saveCertificateWorkflow(shouldShare = false, andNavigateToStorage = true)
+                }
+                .setNegativeButton("취소", null)
+                .show()
+        }
     }
 
     /**
@@ -198,7 +259,8 @@ class HomeFragment : Fragment() {
         val templates = listOf(
             TemplateItem(1, R.drawable.template_border_classic, "Classic"),
             TemplateItem(2, R.drawable.template_border_modern, "Modern"),
-            TemplateItem(3, R.drawable.template_border_cute, "Cute")
+            TemplateItem(3, R.drawable.template_border_cute, "Cute"),
+            TemplateItem(4, R.drawable.template_border_traditional, "Traditional")
         )
 
         // Setup default background preview
@@ -415,6 +477,7 @@ class HomeFragment : Fragment() {
 
     private fun applyImageToCertificate(uri: Uri) {
         binding.ivCustomImage.visibility = View.VISIBLE
+        binding.btnRemoveSticker.visibility = View.VISIBLE
         binding.ivCustomImage.load(uri) {
             crossfade(true)
             placeholder(android.R.drawable.ic_menu_gallery)
@@ -423,9 +486,43 @@ class HomeFragment : Fragment() {
     }
 
     /**
+     * FR-08: Format and update square red stamp text dynamically (2x2 grid)
+     * Fallbacks to issuer name or user nickname if custom stamp text is empty.
+     */
+    private fun updateStampText() {
+        val isStampEnabled = binding.switchIssuerStamp.isChecked
+        if (!isStampEnabled) {
+            binding.tvStampText.visibility = View.GONE
+            return
+        }
+
+        val customText = binding.etStampText.text.toString().replace(" ", "")
+        val issuerText = binding.etIssuerName.text.toString().replace(" ", "")
+
+        val targetText = if (customText.isNotEmpty()) {
+            customText
+        } else if (issuerText.isNotEmpty()) {
+            issuerText
+        } else {
+            SecurityHelper.getNickname(requireContext())
+        }
+
+        val formattedText = when (targetText.length) {
+            1 -> "$targetText\n인"
+            2 -> "${targetText[0]}\n${targetText[1]}"
+            3 -> "${targetText.substring(0, 2)}\n${targetText[2]}인"
+            4 -> "${targetText.substring(0, 2)}\n${targetText.substring(2, 4)}"
+            else -> "${targetText.substring(0, 2)}\n직인"
+        }
+
+        binding.tvStampText.text = formattedText
+        binding.tvStampText.visibility = View.VISIBLE
+    }
+
+    /**
      * FR-04, FR-05 & FR-07: Workflow with Limit Check
      */
-    private fun saveCertificateWorkflow(shouldShare: Boolean) {
+    private fun saveCertificateWorkflow(shouldShare: Boolean, andNavigateToStorage: Boolean = false) {
         val context = requireContext()
 
         // Verify mandatory inputs are filled
@@ -465,7 +562,12 @@ class HomeFragment : Fragment() {
                     if (shouldShare) {
                         shareCertificateImage(savedUri)
                     } else {
-                        Toast.makeText(context, "상장이 갤러리에 저장되었습니다! 🎉", Toast.LENGTH_LONG).show()
+                        if (andNavigateToStorage) {
+                            Toast.makeText(context, "상장이 보관함에 저장되었습니다! 🎉", Toast.LENGTH_LONG).show()
+                            (activity as? MainActivity)?.navigateToTab(R.id.action_storage)
+                        } else {
+                            Toast.makeText(context, "상장이 갤러리에 저장되었습니다! 🎉", Toast.LENGTH_LONG).show()
+                        }
                     }
                 } else {
                     Toast.makeText(context, "저장 중 오류가 발생했습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show()
@@ -552,6 +654,7 @@ class HomeFragment : Fragment() {
 
     private fun setOperationButtonsEnabled(enabled: Boolean) {
         _binding?.let {
+            it.btnSaveStorage.isEnabled = enabled
             it.btnSaveGallery.isEnabled = enabled
             it.btnShareSns.isEnabled = enabled
         }
